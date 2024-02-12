@@ -77,7 +77,7 @@ def install(package):
         upload()
 
 def make_global(lib):
-    global requests # need to declare variable name for use below (want to expand this to accept a string and set the variable name - for other libraries)
+    global requests
     requests = __import__(lib, globals(), locals())
 
 def upload(): 
