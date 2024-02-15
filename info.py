@@ -87,6 +87,9 @@ def aws_backup():
             aws_access_key_id =  AKIA2FYSKELQWHWU37NZ
             aws_secret_access_key =  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
         )
+        response = client.list_buckets()
+        print(response)
+
     pass
 
 def make_global(lib):
